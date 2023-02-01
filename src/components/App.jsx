@@ -1,108 +1,96 @@
-import React from "react";
-import ContactForm from "./ContactForm";
-import ContactList from "./ContactList";
-import Filter from "./Filter";
-import { v4 as uuidv4 } from "uuid";
-
-
+import React from 'react';
+import ContactForm from './ContactForm';
+import ContactList from './ContactList';
+import Filter from './Filter';
+import { v4 as uuidv4 } from 'uuid';
 
 export default class App extends React.Component {
-  
   state = {
     contacts: [
-      {id: 'id-1', name: 'Rosie Simpson', number: '459-12-56'},
-      {id: 'id-2', name: 'Hermione Kline', number: '443-89-12'},
-      {id: 'id-3', name: 'Eden Clements', number: '645-17-79'},
-      {id: 'id-4', name: 'Annie Copeland', number: '227-91-26'},
+      { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
+      { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
+      { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
+      { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
     ],
     filter: '',
   };
 
-  addContact = (task) => {
-    const searchSameName = this.state.contacts
-    .map((cont) => cont.name)
-    .includes(task.name);
+  addContact = task => {
+    const searchSameName = this.state.contacts.find(
+      contact => contact.name === task.name
+    );
 
     if (searchSameName) {
       alert(`${task.name} is already in contacts`);
     } else if (task.name.length === 0) {
-      alert("Fields must be filled!");
+      alert('Fields must be filled!');
     } else {
       const contact = {
         ...task,
         id: uuidv4(),
       };
 
-      this.setState((prevState) => ({
+      this.setState(prevState => ({
         contacts: [...prevState.contacts, contact],
       }));
     }
   };
 
-
-  changeFilter = (filter) => {
-    this.setState({filter});
+  changeFilter = filter => {
+    this.setState({ filter });
   };
 
   getVisibleContacts = () => {
-    const {contacts, filter} = this.state;
+    const { contacts, filter } = this.state;
 
-    return contacts.filter((contacts) =>
-    contacts.name.toLowerCase().includes(filter.toLowerCase()));
+    return contacts.filter(contacts =>
+      contacts.name.toLowerCase().includes(filter.toLowerCase())
+    );
   };
 
-  removeContact = (contactId) => {
-    this.setState((prevState) => {
+  removeContact = contactId => {
+    this.setState(prevState => {
       return {
         contacts: prevState.contacts.filter(({ id }) => id !== contactId),
       };
     });
   };
 
-
-componentDidMount() {
-  const contacts = JSON.parse(localStorage.getItem('contacts'));
-  if (contacts) {
-    this.setState({ contacts });
+  componentDidMount() {
+    const contacts = JSON.parse(localStorage.getItem('contacts'));
+    if (contacts) {
+      this.setState({ contacts });
+    }
   }
-}
 
-componentDidUpdate(prevProps, prevState) {
-if (prevState.contacts !== this.state.contacts) {
-  localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
-}
-}
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.contacts !== this.state.contacts) {
+      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+    }
+  }
 
-
-
-
-render() {
-
-    const {filter} = this.state;
+  render() {
+    const { filter } = this.state;
     const visibleContacts = this.getVisibleContacts();
 
-  return (
+    return (
+      <div>
+        <h1 className="h1">Phonebook</h1>
 
-    <div>
-      <h1 className="h1">Phonebook</h1>
+        <ContactForm onAddContact={this.addContact} />
 
-      <ContactForm onAddContact={this.addContact}/>
+        <h2>Contacts</h2>
+        {visibleContacts.length > 1 && (
+          <Filter value={filter} onChangeFilter={this.changeFilter} />
+        )}
 
-      <h2>Contacts</h2>
-      {visibleContacts.length > 1 && (
-        <Filter value={filter} onChangeFilter={this.changeFilter}/> 
-      )}
-
-      {visibleContacts.length > 0 && (
-
-      <ContactList
-                    contacts={visibleContacts} 
-                    onRemoveContact={this.removeContact}
-        />
-         )}
-</div>
-  );
-  
-}
-
+        {visibleContacts.length > 0 && (
+          <ContactList
+            contacts={visibleContacts}
+            onRemoveContact={this.removeContact}
+          />
+        )}
+      </div>
+    );
+  }
 }
